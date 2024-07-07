@@ -4,5 +4,4 @@ Flask-Bcrypt
 Flask-PyMongo
 pymongo
 python-dotenv
-ssl
 passlib
