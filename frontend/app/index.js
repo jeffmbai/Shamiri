@@ -21,7 +21,7 @@ export default function Page() {
           return;
         }
 
-        const response = await fetch("http://127.0.0.1:5000/protected", {
+        const response = await fetch("https://shamiri.onrender.com/profile", {
           headers: {
             'Authorization': `Bearer ${access_token}`
           }

@@ -14,10 +14,16 @@ users_collection = db['users']
 app.config['JWT_SECRET_KEY'] = '5ee788cedeea596d0fe42dc211fa8b20b1c83dbe' 
 jwt = JWTManager(app)
 
+
+#################### Routes ####################
+
+## Default route
 @app.route('/')
 def hello():
     return "Welcome to Shamiri Flask API!"
 
+
+## Register route
 @app.route('/register', methods=['POST'])
 def register():
     new_user = request.json
@@ -31,6 +37,8 @@ def register():
     users_collection.insert_one(new_user)
     return jsonify({'message': 'User registered successfully'}), 201
 
+
+## Login route
 @app.route('/login', methods=['POST'])
 def login():
     login_details = request.json
@@ -42,7 +50,9 @@ def login():
     
     return jsonify({'message': 'Invalid username or password'}), 401
 
-@app.route('/profile', methods=['GET'])
+
+## landing route
+@app.route('/landing', methods=['GET'])
 @jwt_required()
 def profile():
     current_user = get_jwt_identity()
