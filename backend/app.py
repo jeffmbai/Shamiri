@@ -18,18 +18,18 @@ jwt = JWTManager(app)
 def hello():
     return "Welcome to Shamiri Flask API!"
 
-# @app.route('/register', methods=['POST'])
-# def register():
-#     new_user = request.json
-#     if users_collection.find_one({'username': new_user['username']}):
-#         return jsonify({'message': 'Username already exists'}), 409
+@app.route('/register', methods=['POST'])
+def register():
+    new_user = request.json
+    if users_collection.find_one({'username': new_user['username']}):
+        return jsonify({'message': 'Username already exists'}), 409
     
-#     if users_collection.find_one({'email': new_user['email']}):
-#         return jsonify({'message': 'Email already exists'}), 409
+    if users_collection.find_one({'email': new_user['email']}):
+        return jsonify({'message': 'email already exists'}), 409
     
-#     new_user['password'] = sha256.hash(new_user['password'])
-#     users_collection.insert_one(new_user)
-#     return jsonify({'message': 'User registered successfully'}), 201
+    new_user['password'] = sha256.hash(new_user['password'])
+    users_collection.insert_one(new_user)
+    return jsonify({'message': 'User registered successfully'}), 201
 
 # @app.route('/login', methods=['POST'])
 # def login():
