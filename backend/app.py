@@ -31,25 +31,25 @@ def register():
     users_collection.insert_one(new_user)
     return jsonify({'message': 'User registered successfully'}), 201
 
-# @app.route('/login', methods=['POST'])
-# def login():
-#     login_details = request.json
-#     user = users_collection.find_one({'username': login_details['username']})
+@app.route('/login', methods=['POST'])
+def login():
+    login_details = request.json
+    user = users_collection.find_one({'username': login_details['username']})
     
-#     if user and sha256.verify(login_details['password'], user['password']):
-#         access_token = create_access_token(identity=user['username'])
-#         return jsonify({'access_token': access_token}), 200
+    if user and sha256.verify(login_details['password'], user['password']):
+        access_token = create_access_token(identity=user['username'])
+        return jsonify({'access_token': access_token}), 200
     
-#     return jsonify({'message': 'Invalid username or password'}), 401
+    return jsonify({'message': 'Invalid username or password'}), 401
 
-# @app.route('/profile', methods=['GET'])
-# @jwt_required()
-# def profile():
-#     current_user = get_jwt_identity()
-#     user = users_collection.find_one({'username': current_user}, {'_id': 0, 'password': 0})
-#     if not user:
-#         return jsonify({'message': 'User not found'}), 404
-#     return jsonify(user), 200
+@app.route('/profile', methods=['GET'])
+@jwt_required()
+def profile():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user}, {'_id': 0, 'password': 0})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    return jsonify(user), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=10000 , host='0.0.0.0')
