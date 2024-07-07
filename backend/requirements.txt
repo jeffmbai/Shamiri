@@ -5,4 +5,4 @@ Flask-PyMongo
 pymongo
 python-dotenv
 ssl
-passlib 1.7.4 
+passlib
