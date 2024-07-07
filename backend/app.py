@@ -2,12 +2,12 @@ from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from pymongo import MongoClient
 from passlib.hash import pbkdf2_sha256 as sha256
-import certifi
+import ssl
 
 app = Flask(__name__)
 
 # MongoDB setup
-client = MongoClient('mongodb+srv://mbaijeff:Xcial519@cluster0.vonlu34.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', tlsCAFile=certifi.where())
+client = MongoClient('mongodb+srv://mbaijeff:Xcial519@cluster0.vonlu34.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', tlsAllowInvalidCertificates=True)
 db = client['Shamiri']
 users_collection = db['users']
 

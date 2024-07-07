@@ -4,3 +4,5 @@ Flask-Bcrypt
 Flask-PyMongo
 pymongo
 python-dotenv
+ssl
+passlib 1.7.4 
