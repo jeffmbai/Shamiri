@@ -1,60 +1,56 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from flask_bcrypt import Bcrypt
-from flask_pymongo import PyMongo
-from bson.objectid import ObjectId
-from dotenv import load_dotenv
-import os
+from pymongo import MongoClient
+from passlib.hash import pbkdf2_sha256 as sha256
+import certifi
 
 app = Flask(__name__)
-load_dotenv()
 
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['MONGO_URI'] = os.getenv('MONGO_URI')
-mongo = PyMongo(app)
-bcrypt = Bcrypt(app)
+# MongoDB setup
+client = MongoClient('mongodb+srv://mbaijeff:Xcial519@cluster0.vonlu34.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', tlsCAFile=certifi.where())
+db = client['Shamiri']
+users_collection = db['users']
+
+# JWT setup
+app.config['JWT_SECRET_KEY'] = '5ee788cedeea596d0fe42dc211fa8b20b1c83dbe' 
 jwt = JWTManager(app)
 
-# User registration
+@app.route('/')
+def hello():
+    return "Welcome to Shamiri Flask API!"
+
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    username = data['username']
-    email = data['email']
-    password = data['password']
+    new_user = request.json
+    if users_collection.find_one({'username': new_user['username']}):
+        return jsonify({'message': 'Username already exists'}), 409
+    
+    if users_collection.find_one({'email': new_user['email']}):
+        return jsonify({'message': 'Email already exists'}), 409
+    
+    new_user['password'] = sha256.hash(new_user['password'])
+    users_collection.insert_one(new_user)
+    return jsonify({'message': 'User registered successfully'}), 201
 
-    if mongo.db.users.find_one({'email': email}):
-        return jsonify(message="Email already taken"), 400
-
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    mongo.db.users.insert_one({'username':username,'email': email, 'password': hashed_password})
-
-    return jsonify(message="User registered successfully"), 201
-
-# User login
 @app.route('/login', methods=['POST'])
 def login():
+    login_details = request.json
+    user = users_collection.find_one({'username': login_details['username']})
     
-    data = request.get_json()
+    if user and sha256.verify(login_details['password'], user['password']):
+        access_token = create_access_token(identity=user['username'])
+        return jsonify({'access_token': access_token}), 200
     
-    email = data['email']
-    password = data['password']
+    return jsonify({'message': 'Invalid username or password'}), 401
 
-    user = mongo.db.users.find_one({'email': email})
-
-    if not user or not bcrypt.check_password_hash(user['password'], password):
-        return jsonify(message="Invalid credentials"), 401
-
-    access_token = create_access_token(identity=str(user['_id']))
-    return jsonify(access_token=access_token), 200
-
-# Protected route
-@app.route('/protected', methods=['GET'])
+@app.route('/profile', methods=['GET'])
 @jwt_required()
-def protected():
-    current_user_id = get_jwt_identity()
-    current_user = mongo.db.users.find_one({'_id': ObjectId(current_user_id)})
-    return jsonify(logged_in_as=current_user['username']), 200
+def profile():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user}, {'_id': 0, 'password': 0})
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    return jsonify(user), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
