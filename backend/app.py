@@ -79,8 +79,21 @@ def add_journal():
 @jwt_required()
 def get_all_journals():
     current_user = get_jwt_identity()
-    journals = list(journals_collection.find({'username': current_user}, {'_id': 0}))  # Exclude the _id field
+    journals = list(journals_collection.find({'username': current_user}))  # Exclude the _id field
     return jsonify(journals), 200
+
+
+## Get Journal by ID
+@app.route('/journal/<journal_id>', methods=['GET'])
+@jwt_required()
+def get_journal_by_id(journal_id):
+    current_user = get_jwt_identity()
+    journal = journals_collection.find_one({'_id': ObjectId(journal_id), 'username': current_user}, {'_id': 0})
+    if not journal:
+        return jsonify({'message': 'Journal not found'}), 404
+    return jsonify(journal), 200
+
+
 
 ## Get Journals by Category
 @app.route('/journals/<category>', methods=['GET'])
