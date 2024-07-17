@@ -35,7 +35,7 @@ export default function App() {
 
       if (data.access_token) {
         await AsyncStorage.setItem('access_token', data.access_token);
-        router.replace('/');
+        router.replace('/bottomTab');
       } else {
         ToastAndroid.show(data.message, ToastAndroid.SHORT);
       }

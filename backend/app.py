@@ -79,7 +79,7 @@ def add_journal():
 @jwt_required()
 def get_all_journals():
     current_user = get_jwt_identity()
-    journals = list(journals_collection.find({'username': current_user}))  # Exclude the _id field
+    journals = list(journals_collection.find({'username': current_user})) 
     return jsonify(journals), 200
 
 
